@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Asisten Virtual - Lucktees.id</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 40px auto;
+            background: #f5f5f5;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark {
+            background: #1e1e1e;
+            color: #ddd;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        #chat-box {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            height: 400px;
+            overflow-y: auto;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark #chat-box {
+            background: #2c2c2c;
+            color: #ddd;
+            border-color: #444;
+        }
+
+        .msg {
+            margin-bottom: 12px;
+        }
+
+        .user {
+            text-align: right;
+        }
+
+        .user span {
+            background: #0084ff;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+
+        .bot span {
+            background: #e4e6eb;
+            padding: 8px 12px;
+            border-radius: 16px;
+            display: inline-block;
+        }
+
+        body.dark .bot span {
+            background: #444;
+            color: #ddd;
+        }
+
+        #input-area {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+        }
+
+        #message {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        body.dark #message {
+            background: #333;
+            border-color: #555;
+            color: #ddd;
+        }
+
+        button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #0084ff;
+            color: white;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #006fcc;
+        }
+
+        #toggle-dark {
+            margin-top: 12px;
+            background: #555;
+        }
+
+        #toggle-dark:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <h2>Asisten Virtual - Lucktees.id</h2>
+    <div id="chat-box"></div>
+
+    <div id="input-area">
+        <input type="text" id="message" placeholder="Tulis pertanyaan tentang Lucktees.id..." />
+        <button onclick="sendMessage()">Kirim</button>
+    </div>
+
+    <button id="toggle-dark" onclick="toggleDark()">Toggle Dark Mode 🌙</button>
+
+    <script>
+
+        async function sendMessage() {
+    const message = document.getElementById("message").value;
+
+    const response = await fetch("/chat", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message: message })
+    });
+
+    const data = await response.json();
+    console.log(data.reply);
+}
+        const chatBox = document.getElementById("chat-box");
+        const input = document.getElementById("message");
+
+        function addMessage(text, sender) {
+            const div = document.createElement("div");
+            div.className = "msg " + sender;
+            div.innerHTML = `<span>${text.replace(/\n/g, "<br>")}</span>`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const text = input.value.trim();
+            if (!text) return;
+
+            addMessage(text, "user");
+            input.value = "";
+
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await response.json();
+            addMessage(data.reply, "bot");
+        }
+
+        input.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") sendMessage();
+        });
+
+        function toggleDark() {
+            document.body.classList.toggle("dark");
+        }
+
+        addMessage(
+            "Halo, saya asisten virtual Lucktees.id 👋<br>" +
+            "Silakan tanya: jam buka, alamat, cara order, atau produk custom kami seperti kaos, hoodie, jersey, jaket, dan topi.",
+            "bot"
+        );
+    </script>
+</body>
+</html>
